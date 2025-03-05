@@ -2,7 +2,7 @@ data-bin
 model-bin
 outputs
 tmp-workspace
-
+.lprof
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
