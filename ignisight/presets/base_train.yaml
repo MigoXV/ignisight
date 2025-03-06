@@ -1,0 +1,42 @@
+# @package _group_
+hydra:
+  run:
+    dir: .
+
+common:
+  log_format: tqdm
+  log_interval: 5
+
+checkpoint:
+  save_dir: outputs/test01
+task:
+  _name: ignisight_e2e
+  # train_h5_path: data-bin/celeba/split/train.h5
+  # valid_h5_path: data-bin/celeba/split/test.h5
+
+dataset:
+  num_workers: 0
+  batch_size: 4
+
+criterion:
+  _name: ignisight_e2e
+
+optimization:
+  max_epoch: 40
+  lr: [0.00005]
+
+optimizer:
+  _name: adam
+  adam_betas: (0.9,0.98)
+  adam_eps: 1e-08
+
+lr_scheduler:
+  _name: fixed
+
+model:
+  _name: dilated_resnet34
+  # base_layers: 18
+
+distributed_training:
+  distributed_world_size: 1
+  ddp_backend: no_c10d

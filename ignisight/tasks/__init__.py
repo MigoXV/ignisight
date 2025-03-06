@@ -1,0 +1,1 @@
+from ignisight.tasks.e2e import IgnisightE2ETask

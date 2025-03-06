@@ -38,6 +38,8 @@ class IgnisightDataset(FairseqDataset):
 
     def size(self, indice):
         return 1
+    def num_tokens(self, indice):
+        return 1
 
     def __getitem__(self, indice):
         time_stamp = self.df.iloc[indice]["Time"]
@@ -45,7 +47,7 @@ class IgnisightDataset(FairseqDataset):
         image_path = self.image_dir / (image_path + ".bmp")
         image = imageio.imread(image_path)
         # image = torch.from_numpy(image).permute(2,1,0)
-        image = self.transform(image).transpose(-1,-2).unsqueeze(0)
+        image = self.transform(image).transpose(-1,-2)
         tgt_vector = torch.Tensor(
             self.df.drop(columns=["Time", "Temp_Set"]).iloc[indice].values
         )
