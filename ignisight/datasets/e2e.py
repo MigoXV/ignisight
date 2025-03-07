@@ -30,6 +30,9 @@ class IgnisightDataset(FairseqDataset):
             [
                 torchvision.transforms.ToTensor(),
                 torchvision.transforms.Resize((288, 384)),
+                torchvision.transforms.Normalize(
+                    mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]
+                ),
             ]
         )
 
@@ -38,6 +41,7 @@ class IgnisightDataset(FairseqDataset):
 
     def size(self, indice):
         return 1
+
     def num_tokens(self, indice):
         return 1
 
@@ -47,10 +51,10 @@ class IgnisightDataset(FairseqDataset):
         image_path = self.image_dir / (image_path + ".bmp")
         image = imageio.imread(image_path)
         # image = torch.from_numpy(image).permute(2,1,0)
-        image = self.transform(image).transpose(-1,-2)
+        image = self.transform(image).transpose(-1, -2)
         tgt_vector = torch.Tensor(
             self.df.drop(columns=["Time", "Temp_Set"]).iloc[indice].values
-        )
+        )/1000
         return image, tgt_vector
 
     def collater(self, samples: List[torch.Tensor]):
@@ -60,7 +64,7 @@ class IgnisightDataset(FairseqDataset):
         return images, tgt_vectors
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     image_dir = Path("data-bin/train01/images")
     xls_path = Path("data-bin/train01/红外数据整理.xls")
     ignisight_dataset = IgnisightDataset(image_dir, xls_path)
@@ -68,13 +72,15 @@ if __name__ =="__main__":
     # print(ignisight_dataset[0][0].shape)
     # print(ignisight_dataset[0][1].shape)
     # print(ignisight_dataset.collater([ignisight_dataset[0], ignisight_dataset[1]]))
-    
+
     # 随机抽取一个样本
     import random
+
     import matplotlib.pyplot as plt
+
     random_index = random.randint(0, len(ignisight_dataset))
-    image, tgt_vector = ignisight_dataset[random_index] 
-    plt.imshow(image.squeeze(0).permute(2,1,0).numpy())
+    image, tgt_vector = ignisight_dataset[random_index]
+    plt.imshow(image.squeeze(0).permute(2, 1, 0).numpy())
     plt.show()
     print(tgt_vector)
     print(tgt_vector.shape)

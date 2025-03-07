@@ -13,14 +13,15 @@ class IgnisightE2ECriterion(FairseqCriterion):
     def __init__(self, task):
         super().__init__(task)
 
-    def forward(self, model, sample, reduce=True):
+    def forward(self, model, sample):
         images, tgt_vectors = sample
 
         hyp_vectors = model(images)
         loss_vector = torch.nn.functional.mse_loss(
-            hyp_vectors, tgt_vectors, reduction="sum" if reduce else "none"
+            hyp_vectors, tgt_vectors, reduction="none"
         )
-        sample_size = tgt_vectors.numel()
+        loss_vector = loss_vector.sum(dim=0)
+        sample_size = images.size(0)
         ir_upper_loss = loss_vector[0]
         ir_left2_loss = loss_vector[1]
         ir_sic_upper_loss = loss_vector[2]
@@ -30,13 +31,13 @@ class IgnisightE2ECriterion(FairseqCriterion):
         loss = loss_vector.sum()
 
         logging_output = {
-            "loss": loss.data,
-            "ir_upper_loss": ir_upper_loss.data,
-            "ir_left2_loss": ir_left2_loss.data,
-            "ir_sic_upper_loss": ir_sic_upper_loss.data,
-            "left_2_loss": left_2_loss.data,
-            "upper_loss": upper_loss.data,
-            "sic_upper_loss": sic_upper_loss.data,
+            "loss": loss.item(),
+            "ir_upper_loss": ir_upper_loss.item(),
+            "ir_left2_loss": ir_left2_loss.item(),
+            "ir_sic_upper_loss": ir_sic_upper_loss.item(),
+            "left_2_loss": left_2_loss.item(),
+            "upper_loss": upper_loss.item(),
+            "sic_upper_loss": sic_upper_loss.item(),
             "ntokens": sample_size,
             "nsentences": sample_size,
             "sample_size": sample_size,

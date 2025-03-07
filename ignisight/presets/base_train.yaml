@@ -35,7 +35,7 @@ lr_scheduler:
 
 model:
   _name: dilated_resnet34
-  # base_layers: 18
+  base_layers: 34
 
 distributed_training:
   distributed_world_size: 1

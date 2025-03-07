@@ -53,12 +53,13 @@ def draw_temperature():
     new_temp_correction = (
         lambda x: -7.8836 * 10**-6 * x**3 + 0.0176 * x**2 - 10.815 * x + 2725.9628
     )
-    data = scio.loadmat("data-bin/tempData.mat")
+    # data = scio.loadmat("data-bin/4时58分.mat")
+    data = scio.loadmat("tmp-workspace/匣钵区域温度校正/第一组(240901-240902)/温度矩阵/202409011713.mat")
     temp_data = np.array(data["thermalImage"])  # 将matlab数据赋值给python变量
     # old_temp_data=temp_correction(temp_data)
     new_temp_data = new_temp_correction(temp_data)
     data_point = np.ndarray(shape=(288 * 382, 3), dtype=float, order="F")
-    print(temp_data)
+    # print(temp_data)
     temp_data2 = np.zeros_like(temp_data,dtype=float)
     for i in range(288):
         for j in range(382):
@@ -75,12 +76,30 @@ def draw_temperature():
     yi = np.linspace(min(y), max(y))
     xi, yi = np.meshgrid(xi, yi)
     zi = griddata(data_point[:, 0:2], z, (xi, yi), method="cubic")
+    # Create a heatmap of the temperature data
+    fig1=plt.figure(figsize=(10, 8))
+    heatmap = plt.imshow(temp_data, cmap='hot', interpolation='nearest')
+    plt.colorbar(heatmap, label='Temperature')
+    plt.title('Temperature Heatmap')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.savefig('temp_heatmap.png')
+    # plt.show()
 
-    fig2 = plt.figure(2)
+    # Also create a heatmap for the corrected temperature data
+    fig2=plt.figure(figsize=(10, 8))
+    heatmap_corrected = plt.imshow(temp_data2, cmap='hot', interpolation='nearest')
+    plt.colorbar(heatmap_corrected, label='Corrected Temperature')
+    plt.title('Corrected Temperature Heatmap')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.savefig('corrected_temp_heatmap.png')
+    # plt.show()
+    fig3 = plt.figure(3)
     ax = plt.axes(projection="3d")
     surf = ax.plot_surface(xi, yi, zi, cmap="BuPu", linewidth=0, antialiased=False)
     pickle.dump((xi, yi, zi), open("data-bin/raw_temp.pkl", "wb"))
-    fig2.colorbar(surf)
+    fig3.colorbar(surf)
     ax.set_title("温度图")
     plt.show()
 
