@@ -3,7 +3,7 @@ model-bin
 outputs
 tmp-workspace
 .lprof
-
+.hydra
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

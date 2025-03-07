@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "train",
+            "type": "debugpy",
+            "request": "launch",
+            // "program": "${file}",
+            "module": "ignisight.commands.train_cli_app",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/ignisight",
+                "HYDRA_FULL_ERROR": "1"
+            },
+            "args": "--config-dir ignisight/presets --config-name base_train",
+            "justMyCode": false
+        },
+        {
             "name": "Python 调试程序: 当前文件",
             "type": "debugpy",
             "request": "launch",
