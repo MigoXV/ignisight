@@ -15,7 +15,7 @@
                 "PYTHONPATH": "${workspaceFolder}/ignisight",
                 "HYDRA_FULL_ERROR": "1"
             },
-            "args": "--config-dir ignisight/presets --config-name base_train",
+            "args": "--config-dir ignisight/presets --config-name temp_fix",
             "justMyCode": false
         },
         {

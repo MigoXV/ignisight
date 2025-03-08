@@ -1,1 +1,2 @@
 from ignisight.criterions.e2e import IgnisightE2ECriterion
+from ignisight.criterions.temp_fix import TempFixCriterion

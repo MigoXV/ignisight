@@ -6,21 +6,20 @@ hydra:
 common:
   log_format: tqdm
   log_interval: 5
-  wandb_project: ignisight
+  # wandb_project: ignisight
 
 checkpoint:
-  save_dir: outputs/test04
+  save_dir: outputs/temp_fix/test01
+
 task:
-  _name: ignisight_e2e
-  # train_h5_path: data-bin/celeba/split/train.h5
-  # valid_h5_path: data-bin/celeba/split/test.h5
+  _name: temp_fix
 
 dataset:
-  num_workers: 9
-  batch_size: 16
+  num_workers: 0
+  batch_size: 4
 
 criterion:
-  _name: ignisight_e2e
+  _name: temp_fix
 
 optimization:
   max_epoch: 20
@@ -35,7 +34,7 @@ lr_scheduler:
   _name: fixed
 
 model:
-  _name: tiny_bert
+  _name: base_unet
   base_layers: 6
 
 distributed_training:
