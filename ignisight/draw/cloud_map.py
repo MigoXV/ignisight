@@ -1,5 +1,6 @@
+from collections.abc import Callable
+
 import numpy as np
-import scipy.io as scio
 import vtk
 from vtkmodules.util.numpy_support import numpy_to_vtk
 
@@ -76,8 +77,6 @@ class TemperatureCloudVisualizer:
         self.interactor.SetRenderWindow(self.renderWindow)
         self.interactor.SetInteractorStyle(vtk.vtkInteractorStyleMultiTouchCamera())
 
-        # 用于模拟温度数据变化的计数器
-        self.update_counter = 0
         # 存储文本标注 Actor 的列表（方便更新时移除旧的）
         self.text_actors = []
 
@@ -88,9 +87,8 @@ class TemperatureCloudVisualizer:
         """
 
         # 翻转温度矩阵（使得点云与温度矩阵对应），再展平成一维数组
-        reshaped_temp = self.tempData[::-1].flatten().astype(np.float32)
+        reshaped_temp = tempData[::-1].flatten().astype(np.float32)
 
-        # **优化点**：直接使用 numpy_to_vtk 进行高效转换
         scalars = numpy_to_vtk(reshaped_temp, deep=True)
 
         # scalarRange = scalars.GetRange()
@@ -98,15 +96,13 @@ class TemperatureCloudVisualizer:
         self.mapper.SetScalarRange(0, 1000)  # 设置固定范围
 
         # 同时添加文本标注
-        self.add_text_annotations()
+        self.add_text_annotations(tempData)
 
-    def add_text_annotations(self):
+    def add_text_annotations(self, tempData):
         """
         根据传入的温度数据添加文本标注，示例中固定使用部分数据索引和预设位置。
         如果需要更灵活的设置，可以对方法进行扩展。
         """
-        if not hasattr(self, "tempData"):
-            return  # 未调用 update_temperature
 
         # 示例中的文本坐标和数据索引
         point_positions = [
@@ -121,21 +117,21 @@ class TemperatureCloudVisualizer:
             [-100, 760, 200],
             [-100, 520, 200],
         ]
-        Ttext = [
-            str(round(self.tempData[193, 22])),
-            str(round(self.tempData[193, 54])),
-            str(round(self.tempData[193, 78])),
-            str(round(self.tempData[193, 92])),
-            str(round(self.tempData[193, 99])),
-            str(round(self.tempData[193, 104])),
-            str(round(self.tempData[193, 108])),
-            str(round(self.tempData[38, 173])),
-            str(round(self.tempData[169, 173])),
-            str(round(self.tempData[169, 225])),
+        temp_index = [
+            (193, 22),
+            (193, 54),
+            (193, 78),
+            (193, 92),
+            (193, 99),
+            (193, 104),
+            (193, 108),
+            (38, 173),
+            (169, 173),
+            (169, 225),
         ]
+        Ttext = [str(round(tempData[i, j])) for i, j in temp_index]
         color = [0, 0, 0]  # 黑色文本
         orientation = [90, 0, 90]  # 旋转角度
-
         # 先移除之前添加的文本标注（如果存在）
         for actor in self.text_actors:
             self.render.RemoveActor(actor)
@@ -173,26 +169,6 @@ class TemperatureCloudVisualizer:
         textActor.GetProperty().SetColor(color)
         return textActor
 
-    def get_temperature_data(self) -> np.ndarray:
-        """
-        模拟接收新的温度数据。
-        实际使用时，可在此方法中添加数据采集逻辑（例如从传感器或网络接收数据）。
-        此处模拟一个 (250, 224) 的温度矩阵，数据会随时间变化。
-        """
-        data = scio.loadmat(
-            "tmp-workspace/匣钵区域温度校正/第一组(240901-240902)/温度矩阵/202409011713.mat"
-        )
-        tempData = np.array(data["thermalImage"])
-        # 对温度数据进行边缘填充，保持数据尺寸一致
-        tempData = np.pad(tempData, ((0, 0), (0, 2)), "edge")
-        base_temp = 30.0
-        # 利用正弦波制造周期性温度波动
-        variation = 100 * np.sin(self.update_counter / 10.0)
-        noise = np.random.randn(288, 384)
-        self.tempData = base_temp + variation + noise + tempData
-        self.update_counter += 1
-        return self.tempData
-
     def timer_callback(self, obj, event):
         """
         定时器回调函数，每次触发时获取新数据，更新温度点云及文本标注，并刷新渲染窗口。
@@ -201,19 +177,14 @@ class TemperatureCloudVisualizer:
         self.update_temperature(new_temp)
         self.renderWindow.Render()
 
-    def run(self):
+    def run(self, temp_fn: Callable):
         """
         启动渲染窗口和交互，同时设置定时器实现实时数据更新。
         """
+        self.get_temperature_data = temp_fn
         self.interactor.Initialize()
         self.renderWindow.Render()
-        # 添加定时器，每隔 1000 毫秒触发一次回调
+        # 添加定时器，每隔 10 毫秒触发一次回调
         self.interactor.AddObserver("TimerEvent", self.timer_callback)
         self.interactor.CreateRepeatingTimer(10)
         self.interactor.Start()
-
-
-# 示例用法：启动实时温度云图（这里不再从文件加载 mat 数据，而是使用定时器模拟实时数据更新）
-if __name__ == "__main__":
-    visualizer = TemperatureCloudVisualizer()
-    visualizer.run()
