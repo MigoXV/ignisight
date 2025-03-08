@@ -11,10 +11,11 @@ from PIL import Image
 
 class IgnisightDataset(FairseqDataset):
 
-    def __init__(self, image_dir: Path, xls_path: Path):
+    def __init__(self, image_dir: Path, data_df: pd.DataFrame):
         self.image_dir = image_dir
-        self.xls_path = xls_path
-        self.df = pd.read_excel(xls_path)
+        # self.xls_path = xls_paths
+        # self.df = pd.read_excel(xls_path)
+        self.df = data_df
         self.df.columns = [
             "Time",
             "IR_Upper_TC",

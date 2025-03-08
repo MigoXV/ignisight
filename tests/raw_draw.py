@@ -98,7 +98,7 @@ def draw_temperature():
     fig3 = plt.figure(3)
     ax = plt.axes(projection="3d")
     surf = ax.plot_surface(xi, yi, zi, cmap="BuPu", linewidth=0, antialiased=False)
-    pickle.dump((xi, yi, zi), open("data-bin/raw_temp.pkl", "wb"))
+    # pickle.dump((xi, yi, zi), open("data-bin/raw_temp.pkl", "wb"))
     fig3.colorbar(surf)
     ax.set_title("温度图")
     plt.show()
