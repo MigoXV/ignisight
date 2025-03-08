@@ -4,8 +4,11 @@ from pathlib import Path
 
 from fairseq.dataclass import FairseqDataclass
 from fairseq.tasks import FairseqTask, register_task
+import sklearn.model_selection
 
 from ignisight.datasets.e2e import IgnisightDataset
+import pandas as pd
+import sklearn
 
 
 @dataclass
@@ -29,17 +32,17 @@ class IgnisightE2ETask(FairseqTask):
         super().__init__(config)
         self.train_image_dir = Path(config.train_image_dir)
         self.train_xls_path = Path(config.train_xls_path)
+        self.df = pd.read_excel(config.train_xls_path)
+        self.train_df, self.val_df = sklearn.model_selection.train_test_split(
+            self.df, test_size=0.2
+        )
 
     def load_dataset(self, split, **kwargs):
 
         if split == "train":
-            self.datasets[split] = IgnisightDataset(
-                self.train_image_dir, self.train_xls_path
-            )
+            self.datasets[split] = IgnisightDataset(self.train_image_dir, self.train_df)
         elif split == "valid":
-            self.datasets[split] = IgnisightDataset(
-                self.train_image_dir, self.train_xls_path
-            )
+            self.datasets[split] = IgnisightDataset(self.train_image_dir, self.val_df)
         else:
             raise KeyError(f"Invalid split: {split}")
 
