@@ -13,7 +13,7 @@ class Inferencer:
     def __init__(self, ckpt_path, device="cpu"):
         self.device = device
         self.model = DenoisingUNet()
-        ckpt = torch.load(ckpt_path)
+        ckpt = torch.load(ckpt_path,weights_only=False)
         self.model.load_state_dict(ckpt["model"])
         self.model = self.model.to(device)
         self.model.eval()

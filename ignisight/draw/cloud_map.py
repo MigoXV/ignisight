@@ -25,12 +25,14 @@ class TemperatureCloudVisualizer:
         self.vertex = vtk.vtkVertexGlyphFilter()
         self.vertex.SetInputData(self.polydata)
 
-        # 创建 ColorTransferFunction（类似 Plasma colormap）
         self.lut = vtk.vtkColorTransferFunction()
         self.lut.AddRGBPoint(0, 0.050, 0.029, 0.529)  # 深紫色
-        self.lut.AddRGBPoint(250, 0.294, 0.000, 0.730)  # 蓝紫色
-        self.lut.AddRGBPoint(500, 0.792, 0.000, 0.508)  # 洋红色
-        self.lut.AddRGBPoint(750, 0.976, 0.620, 0.224)  # 橙金色
+        self.lut.AddRGBPoint(640, 0.294, 0.000, 0.730)  # 蓝紫色
+        self.lut.AddRGBPoint(660, 0.792, 0.000, 0.508)  # 洋红色（起点）
+        self.lut.AddRGBPoint(670, 1.000, 0.200, 0.400)  # 过渡到粉红色
+        self.lut.AddRGBPoint(675, 1.000, 0.500, 0.200)  # 过渡到橙红色
+        self.lut.AddRGBPoint(680, 1.000, 0.800, 0.100)  # 过渡到金黄色
+        self.lut.AddRGBPoint(685, 0.976, 0.620, 0.224)  # 橙金色（终点）
         self.lut.AddRGBPoint(1000, 0.976, 0.984, 0.000)  # 亮金色
 
         # 创建数据映射器
