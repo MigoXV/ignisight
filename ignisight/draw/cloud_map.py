@@ -79,13 +79,13 @@ class TemperatureCloudVisualizer:
         """
         # 对温度数据进行边缘填充，保持数据尺寸一致
         self.tempData = np.pad(tempData, ((0, 0), (0, 2)), "edge")
+
         # 翻转温度矩阵（使得点云与温度矩阵对应），再展平成一维数组
         reshaped_temp = self.tempData[::-1].flatten().astype(np.float32)
 
-        # 将温度数据转为 vtk 数组
-        scalars = vtk.vtkFloatArray()
-        for i, val in enumerate(reshaped_temp):
-            scalars.InsertTuple1(i, val)
+        # **优化点**：直接使用 numpy_to_vtk 进行高效转换
+        scalars = numpy_to_vtk(reshaped_temp, deep=True)
+
         scalarRange = scalars.GetRange()
         self.polydata.GetPointData().SetScalars(scalars)
         self.mapper.SetScalarRange(scalarRange)
@@ -138,14 +138,6 @@ class TemperatureCloudVisualizer:
     def draw3Dtext(
         point: list, text: str, color: list, orientation: list
     ) -> vtk.vtkFollower:
-        """
-        绘制 3D 文本。
-        :param point: 文本的坐标 [x, y, z]
-        :param text: 显示的文本内容
-        :param color: 文本颜色 [R, G, B]
-        :param orientation: 旋转角度 [X, Y, Z]
-        :return: 3D 文字 Actor
-        """
         atext = vtk.vtkVectorText()
         atext.SetText(text)
 
@@ -182,7 +174,9 @@ if __name__ == "__main__":
     import scipy.io as scio
 
     # 从外部加载温度数据（例如 mat 文件中的 thermalImage）
-    data = scio.loadmat("data-bin/tempData.mat")
+    data = scio.loadmat(
+        "tmp-workspace/匣钵区域温度校正/第一组(240901-240902)/温度矩阵/202409011713.mat"
+    )
     tempData = np.array(data["thermalImage"])
 
     # 创建可视化对象，并传入温度数据进行更新渲染
