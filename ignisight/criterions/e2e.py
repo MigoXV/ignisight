@@ -17,7 +17,7 @@ class IgnisightE2ECriterion(FairseqCriterion):
         images, tgt_vectors = sample
 
         hyp_vectors = model(images)
-        loss_vector = torch.nn.functional.mse_loss(
+        loss_vector = torch.nn.functional.l1_loss(
             hyp_vectors, tgt_vectors, reduction="none"
         )
         loss_vector = loss_vector.sum(dim=0)
@@ -32,12 +32,12 @@ class IgnisightE2ECriterion(FairseqCriterion):
 
         logging_output = {
             "loss": loss.item(),
-            "ir_upper_loss": ir_upper_loss.item(),
-            "ir_left2_loss": ir_left2_loss.item(),
-            "ir_sic_upper_loss": ir_sic_upper_loss.item(),
-            "left_2_loss": left_2_loss.item(),
-            "upper_loss": upper_loss.item(),
-            "sic_upper_loss": sic_upper_loss.item(),
+            "ir_upper_loss": ir_upper_loss.item() * 1000,
+            "ir_left2_loss": ir_left2_loss.item() * 1000,
+            "ir_sic_upper_loss": ir_sic_upper_loss.item() * 1000,
+            "left_2_loss": left_2_loss.item() * 1000,
+            "upper_loss": upper_loss.item() * 1000,
+            "sic_upper_loss": sic_upper_loss.item() * 1000,
             "ntokens": sample_size,
             "nsentences": sample_size,
             "sample_size": sample_size,
